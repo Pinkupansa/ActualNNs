@@ -31,7 +31,7 @@ class ActualNeuralNetwork:
         self.unfinished_threads_history = []
         self.current_activations = np.zeros((input_values.shape[0],self.neural_graph.n))
         self.current_activations[:, self.input_nodes] = input_values
-        self.activations_history.append(self.current_activations)
+        self.activations_history.append(np.copy(self.current_activations))
         self.output_activations = np.zeros((input_values.shape[0], len(self.output_nodes)))
         unfinished_threads = np.arange(input_values.shape[0])
         
@@ -39,12 +39,13 @@ class ActualNeuralNetwork:
         i = 0
         while i < self.max_decision_time:
             self.current_activations[unfinished_threads] = self.current_activations[unfinished_threads] + np.dot(self.current_activations[unfinished_threads],self.weights)
+            self.activations_history.append(np.copy(self.current_activations))
             unfinished_threads = self.get_unfinished_threads()
             self.unfinished_threads_history.append(unfinished_threads)
             if len(unfinished_threads) == 0:
                 break
             i += 1
-            self.activations_history.append(self.current_activations)
+            
         output = np.square(self.current_activations[:, self.output_nodes])
         output = output/np.sum(output, axis=1)[:, np.newaxis]
         #softmax
